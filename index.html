@@ -1,324 +1,253 @@
-<!DOCTYPE html>
-<html lang="bn">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Account Details & Print Portal</title>
-    <style>
-        :root {
-            --primary: #0056b3;
-            --secondary: #004085;
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #ced4da;
-        }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bank Details Portal</title>
+<style>
+  :root{
+    --bg:#05060f; --panel:rgba(18,22,48,.55); --line:rgba(120,170,255,.22);
+    --cyan:#22e6ff; --violet:#8b5cf6; --pink:#ff3df2; --text:#e8edff; --muted:#8b95c4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text); overflow-x:hidden;
+  }
+  /* animated backdrop */
+  .bg{position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(900px 500px at 15% 10%,rgba(139,92,246,.28),transparent 60%),
+      radial-gradient(800px 500px at 90% 90%,rgba(34,230,255,.22),transparent 60%),
+      radial-gradient(600px 400px at 80% 5%,rgba(255,61,242,.14),transparent 60%),
+      var(--bg);}
+  .grid{position:fixed;inset:0;z-index:-1;opacity:.35;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse at center,#000 30%,transparent 80%);
+    animation:drift 18s linear infinite;}
+  @keyframes drift{to{background-position:48px 48px}}
+  .scan{position:fixed;left:0;right:0;height:140px;z-index:-1;pointer-events:none;
+    background:linear-gradient(180deg,transparent,rgba(34,230,255,.07),transparent);
+    animation:scan 7s linear infinite;}
+  @keyframes scan{from{top:-140px}to{top:100%}}
 
-        body {
-            background-image: url('https://agentbanking.southeastbank.com.bd/pi//emob/bg.png');
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, SolaimanLipi, Arial;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
+  header{max-width:1200px;margin:0 auto;padding:36px 24px 8px;display:flex;align-items:center;gap:16px}
+  .orb{width:44px;height:44px;border-radius:50%;
+    background:conic-gradient(from 0deg,var(--cyan),var(--violet),var(--pink),var(--cyan));
+    box-shadow:0 0 24px rgba(34,230,255,.6);animation:spin 6s linear infinite;position:relative}
+  .orb::after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--bg)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  h1{font-size:clamp(1.3rem,3vw,2rem);letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+    background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;margin-top:4px}
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
+  main{max-width:1200px;margin:0 auto;padding:24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px}
+  @media(max-width:900px){main{grid-template-columns:1fr}}
 
-        h1 {
-            text-align: center;
-            color: var(--primary);
-            margin-bottom: 25px;
-            font-size: 24px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 20px 60px rgba(0,0,0,.45);position:relative}
+  .panel::before{content:"";position:absolute;inset:-1px;border-radius:20px;padding:1px;
+    background:linear-gradient(135deg,rgba(34,230,255,.6),transparent 35%,transparent 65%,rgba(139,92,246,.6));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .panel h2{font-size:.85rem;letter-spacing:.25em;text-transform:uppercase;color:var(--cyan);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+  .panel h2::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.3;transform:scale(.7)}}
 
-        .bank-card {
-            border: 2px solid var(--primary);
-            border-radius: 8px;
-            padding: 25px;
-            background: #fff;
-            position: relative;
-            margin-bottom: 25px;
-        }
+  label{display:block;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+  input,select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(5,8,25,.7);color:var(--text);font-size:.95rem;font-family:inherit;outline:none;transition:.25s}
+  input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,230,255,.18),0 0 20px rgba(34,230,255,.25)}
+  select option{background:#0b0e24}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:480px){.row{grid-template-columns:1fr}}
 
-        .bank-header {
-            text-align: center;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
+  .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+  button{cursor:pointer;border:none;border-radius:12px;padding:13px 22px;font-size:.8rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;font-family:inherit;transition:.25s}
+  .primary{color:#04101a;background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 24px rgba(34,230,255,.4)}
+  .primary:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(139,92,246,.7)}
+  .ghost{color:var(--text);background:transparent;border:1px solid var(--line)}
+  .ghost:hover{border-color:var(--cyan);color:var(--cyan)}
 
-        .detail-row {
-            display: flex;
-            margin-bottom: 12px;
-            align-items: center;
-            border-bottom: 1px dashed #e9ecef;
-            padding-bottom: 8px;
-        }
+  /* preview card */
+  .card{position:relative;border-radius:18px;padding:26px;overflow:hidden;
+    background:linear-gradient(135deg,rgba(34,230,255,.10),rgba(139,92,246,.14) 55%,rgba(255,61,242,.10));
+    border:1px solid var(--line)}
+  .card::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent);transform:skewX(-20deg);animation:shine 5s ease-in-out infinite}
+  @keyframes shine{0%,60%{left:-60%}100%{left:140%}}
+  .card-top{display:flex;flex-direction:column;align-items:center;margin-bottom:22px;gap:14px}
+  .logo{display:flex;align-items:center;justify-content:center;width:100%;max-width:340px;height:96px;padding:10px 18px;
+    border-radius:16px;border:1px solid rgba(34,230,255,.5);background:#fff;cursor:pointer;margin:0;
+    box-shadow:0 0 28px rgba(34,230,255,.3);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .logo img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+  .tag{font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);text-align:center}
+  .tag b{display:block;color:var(--text);font-size:.85rem;letter-spacing:.2em;margin-top:4px}
+  .field{padding:12px 0;border-top:1px dashed var(--line);display:flex;justify-content:space-between;gap:14px;align-items:center}
+  .field:first-of-type{border-top:none}
+  .k{font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);flex:none}
+  .v{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:1rem;text-align:right;word-break:break-word;color:var(--text)}
+  .v.big{font-size:1.3rem;letter-spacing:.12em;color:var(--cyan);text-shadow:0 0 14px rgba(34,230,255,.5)}
+  .copy{background:none;border:1px solid var(--line);color:var(--muted);padding:5px 9px;border-radius:8px;font-size:.6rem;letter-spacing:.15em;flex:none}
+  .copy:hover{color:var(--cyan);border-color:var(--cyan)}
+  .vwrap{display:flex;gap:10px;align-items:center;justify-content:flex-end;min-width:0}
+  .note{margin-top:16px;font-size:.62rem;color:var(--muted);letter-spacing:.12em;text-align:center}
+  .toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,40px);opacity:0;background:rgba(10,14,36,.95);border:1px solid var(--cyan);color:var(--cyan);padding:10px 20px;border-radius:999px;font-size:.75rem;letter-spacing:.15em;transition:.3s;box-shadow:0 0 24px rgba(34,230,255,.4)}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  #logoFile{display:none}
 
-        .detail-label {
-            flex: 0 0 200px;
-            font-weight: bold;
-            color: #495057;
-            font-size: 14px;
-        }
-
-        .detail-value {
-            flex: 1;
-            font-size: 15px;
-            color: #212529;
-        }
-
-        /* Form Controls for Editing */
-        .editor-section {
-            background: #f8f9fa;
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .editor-section h3 {
-            margin-top: 0;
-            font-size: 18px;
-            color: var(--secondary);
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 13px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        .btn-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin: 0 5px;
-        }
-
-        .btn:hover {
-            background-color: var(--secondary);
-        }
-
-        .opt-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-            margin-bottom: 5px;
-            transition: background 0.2s;
-        }
-
-        .opt-btn:hover {
-            background-color: #218838;
-        }
-
-        /* Print Styles */
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            .container {
-                box-shadow: none;
-                padding: 0;
-                max-width: 100%;
-                width: 100%;
-            }
-            .editor-section, .btn-container, h1 {
-                display: none !important;
-            }
-            .bank-card {
-                border: 2px solid #000 !important;
-                box-shadow: none;
-                page-break-inside: avoid;
-                margin: 0;
-            }
-        }
-    </style>
+  /* print: clean light card, only the preview */
+  @page{size:A4 portrait;margin:10mm}
+  @media print{
+    html,body{height:auto;overflow:hidden}
+    body{background:#fff;color:#000}
+    /* whole card must stay inside the top half of A4 (148.5mm) */
+    .card{max-height:135mm;padding:6mm 7mm!important;page-break-inside:avoid;break-inside:avoid}
+    .logo{height:20mm!important;max-width:75mm!important;padding:2mm 5mm!important}
+    .card-top{gap:3mm!important;margin-bottom:3mm!important}
+    .tag{font-size:7pt!important}.tag b{font-size:9pt!important}
+    .field{padding:2.2mm 0!important}
+    .k{font-size:7pt!important}
+    .v{font-size:10.5pt!important}.v.big{font-size:13pt!important;letter-spacing:.08em!important}
+    .note{margin-top:3mm!important;font-size:6.5pt!important}
+    .bg,.grid,.scan,header,#editPanel,.btns,.copy,.toast,.card::after{display:none!important}
+    main{display:block;padding:0}
+    .panel{background:none;border:none;box-shadow:none;padding:0;backdrop-filter:none}
+    .panel::before,.panel h2{display:none}
+    .card{background:#fff;border:2px solid #111;color:#000;border-radius:12px}
+    .k{color:#444}.v,.v.big{color:#000;text-shadow:none}
+    .field{border-color:#999}.tag,.tag b,.note{color:#333}
+    .logo{border:1px solid #bbb;background:#fff;box-shadow:none}
+    .logo img{display:block!important}
+    .card-top{margin-bottom:16px}
+  }
+</style>
 </head>
 <body>
+<div class="bg"></div><div class="grid"></div><div class="scan"></div>
 
-<div class="container">
-    <h1>Bank Details Print Portal</h1>
+<header>
+  <div class="orb"></div>
+  <div>
+    <h1>Bank Details Portal</h1>
+    <div class="sub">Edit &bull; Preview &bull; Print</div>
+  </div>
+</header>
 
-    <!-- Interactive Editor Section -->
-    <div class="editor-section">
-        <h3> Edit Details </h3>
-       
-        <div class="form-group">
-            <label for="input-acc-num">Account Number:</label>
-            <input type="text" id="input-acc-num" class="form-control" value="">
-        </div>
-        <div class="form-group">
-            <label for="input-acc-title">Account Title:</label>
-            <input type="text" id="input-acc-title" class="form-control" value="">
-        </div>
+<main>
+  <section class="panel" id="editPanel">
+    <h2>Edit Details</h2>
 
-        <!-- Branch Selection Dropdown & Options -->
-       
-       
-        <div class="form-group">
-            <label for="input-branch">Branch:</label>
-            <select id="input-branch" class="form-control">
-                <option value="AGENT BANKING DIVISION (DHAKA SOUTH)">AGENT BANKING DIVISION (DHAKA SOUTH)</option>
-                <option value="ISLAMIC BANKING WINDOW (Agent)">ISLAMIC BANKING WINDOW (Agent)</option>
-            </select>
-        </div>
-        
-        <!-- Routing Number Option Buttons -->
-        <div class="form-group">
-            <label>Select Routing Number:</label>
-            <button type="button" class="opt-btn" onclick="setRouting('205270606')">Conventional (205270606)</button>
-            <button type="button" class="opt-btn" onclick="setRouting('205270819')">Islamic (205270819)</button>
-        </div>
+    <label for="acc">Account Number</label>
+    <input id="acc" inputmode="numeric" placeholder="Enter account number" autocomplete="off">
 
-        <div class="form-group">
-            <label for="input-routing">Routing Number:</label>
-            <input type="text" id="input-routing" class="form-control" value="205270606">
-        </div>
-        <div class="form-group">
-            <label for="input-branch-code">Branch Code:</label>
-            <input type="text" id="input-branch-code" class="form-control" value="1007">
-        </div>
-        <div class="form-group">
-            <label for="input-swift">Swift Code:</label>
-            <input type="text" id="input-swift" class="form-control" value="SEBDBDDH">
-        </div>
-        <div class="form-group">
-            <label for="input-office">Office Number:</label>
-            <input type="text" id="input-office" class="form-control" value="01679890011">
-        </div>
+    <label for="title">Account Title</label>
+    <input id="title" placeholder="Enter account title" autocomplete="off">
+
+    <label for="branch">Branch</label>
+    <select id="branch">
+      <option>AGENT BANKING DIVISION (DHAKA SOUTH)</option>
+      <option>ISLAMIC BANKING WINDOW (Agent)</option>
+    </select>
+
+    <label for="routeSel">Select Routing Number</label>
+    <select id="routeSel">
+      <option value="205270606">Conventional (205270606)</option>
+      <option value="205270819">Islamic (205270819)</option>
+    </select>
+
+    <div class="row">
+      <div><label for="route">Routing Number</label><input id="route" value="205270606"></div>
+      <div><label for="code">Branch Code</label><input id="code" value="1007"></div>
+    </div>
+    <div class="row">
+      <div><label for="swift">Swift Code</label><input id="swift" value="SEBDBDDH"></div>
+      <div><label for="office">Office Number</label><input id="office" value="01679890011"></div>
     </div>
 
-    <!-- Printable Bank Card Preview -->
-    <div class="bank-card" id="printableArea">
-        <div class="bank-header">
-            <div id="logo-container">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM7TqNzUfl31C8S0A2Mx9AXDnuKpvn3YQp3IQc8vO5famAyjf4hsA5wJE&s=10" width="400" height="80" alt="Bank Logo">
-            </div>
-            <p style="margin: 0px 0 0 0; font-size: 13px; color: #666;">Account Information / Bank Details</p>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">ACCOUNT NUMBER</div>
-            <div class="detail-value" id="display-acc-num"></div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">ACCOUNT TITLE</div>
-            <div class="detail-value" id="display-acc-title"></div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">BRANCH</div>
-            <div class="detail-value" id="display-branch">AGENT BANKING DIVISION (DHAKA SOUTH)</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">ROUTING NUMBER</div>
-            <div class="detail-value" id="display-routing">205270606</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">BRANCH CODE</div>
-            <div class="detail-value" id="display-branch-code">1007</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">SWIFT CODE</div>
-            <div class="detail-value" id="display-swift">SEBDBDDH</div>
-        </div>
-        <div class="detail-row" style="border-bottom: none;">
-            <div class="detail-label">OFFICE NUMBER</div>
-            <div class="detail-value" id="display-office">01679890011</div>
-        </div>
+    <div class="btns">
+      <button class="primary" onclick="window.print()">&#9113; Print</button>
+      <button class="ghost" id="resetBtn">Reset</button>
     </div>
+  </section>
 
-    <!-- Action Buttons -->
-    <div class="btn-container">
-        <button class="btn" onclick="window.print()">🖨️ Print </button>
+  <section class="panel">
+    <h2>Live Preview</h2>
+    <div class="card" id="card">
+      <div class="card-top">
+        <label class="logo" for="logoFile" title="Click to change logo">
+          <img id="logoImg" alt="Bank Logo" referrerpolicy="no-referrer"
+               src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM7TqNzUfl31C8S0A2Mx9AXDnuKpvn3YQp3IQc8vO5famAyjf4hsA5wJE&s=10">
+        </label>
+        <input type="file" id="logoFile" accept="image/*">
+        <div class="tag">Account Information<b>Bank Details</b></div>
+      </div>
+
+      <div class="field"><span class="k">Account Number</span>
+        <span class="vwrap"><span class="v big" id="pAcc">&mdash;</span><button class="copy" data-c="pAcc">COPY</button></span></div>
+      <div class="field"><span class="k">Account Title</span>
+        <span class="vwrap"><span class="v" id="pTitle">&mdash;</span><button class="copy" data-c="pTitle">COPY</button></span></div>
+      <div class="field"><span class="k">Branch</span>
+        <span class="vwrap"><span class="v" id="pBranch"></span></span></div>
+      <div class="field"><span class="k">Routing Number</span>
+        <span class="vwrap"><span class="v" id="pRoute"></span><button class="copy" data-c="pRoute">COPY</button></span></div>
+      <div class="field"><span class="k">Branch Code</span>
+        <span class="vwrap"><span class="v" id="pCode"></span><button class="copy" data-c="pCode">COPY</button></span></div>
+      <div class="field"><span class="k">Swift Code</span>
+        <span class="vwrap"><span class="v" id="pSwift"></span><button class="copy" data-c="pSwift">COPY</button></span></div>
+      <div class="field"><span class="k">Office Number</span>
+        <span class="vwrap"><span class="v" id="pOffice"></span><button class="copy" data-c="pOffice">COPY</button></span></div>
+
+      <div class="note">Self-prepared details sheet &bull; not an official bank document</div>
     </div>
-</div>
+  </section>
+</main>
+
+<div class="toast" id="toast">COPIED</div>
 
 <script>
-    // Function to set Routing Number on button click
-    function setRouting(val) {
-        document.getElementById('input-routing').value = val;
-        document.getElementById('display-routing').textContent = val;
-    }
-
-    // Function to set Branch on button click
-    function setBranch(val) {
-        document.getElementById('input-branch').value = val;
-        document.getElementById('display-branch').textContent = val;
-    }
-
-    // Live binding between inputs and display card
-    const mappings = [
-        { input: 'input-acc-num', display: 'display-acc-num' },
-        { input: 'input-acc-title', display: 'display-acc-title' },
-        { input: 'input-branch', display: 'display-branch' },
-        { input: 'input-routing', display: 'display-routing' },
-        { input: 'input-branch-code', display: 'display-branch-code' },
-        { input: 'input-swift', display: 'display-swift' },
-        { input: 'input-office', display: 'display-office' }
-    ];
-
-    mappings.forEach(item => {
-        const inputElem = document.getElementById(item.input);
-        const displayElem = document.getElementById(item.display);
-
-        if (inputElem && displayElem) {
-            inputElem.addEventListener('change', () => {
-                displayElem.textContent = inputElem.value;
-            });
-            inputElem.addEventListener('input', () => {
-                displayElem.textContent = inputElem.value;
-            });
-        }
-    });
+(function(){
+  var ids=["acc","title","branch","routeSel","route","code","swift","office"];
+  var map={acc:"pAcc",title:"pTitle",branch:"pBranch",route:"pRoute",code:"pCode",swift:"pSwift",office:"pOffice"};
+  var defaults={acc:"",title:"",branch:"AGENT BANKING DIVISION (DHAKA SOUTH)",routeSel:"205270606",route:"205270606",code:"1007",swift:"SEBDBDDH",office:"01679890011"};
+  var KEY="bankDetailsPortal.v2";
+  function $(i){return document.getElementById(i)}
+  function load(){
+    try{var s=JSON.parse(localStorage.getItem(KEY)||"{}");ids.forEach(function(i){if(s[i]!==undefined)$(i).value=s[i]});
+      if(s.logo)setLogo(s.logo)}catch(e){}
+  }
+  function save(extra){
+    try{var o={};ids.forEach(function(i){o[i]=$(i).value});
+      var prev=JSON.parse(localStorage.getItem(KEY)||"{}");o.logo=extra!==undefined?extra:prev.logo;
+      localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}
+  }
+  function render(){
+    Object.keys(map).forEach(function(k){$(map[k]).textContent=$(k).value.trim()||"\u2014"});
+  }
+  function setLogo(src){$("logoImg").src=src}
+  ids.forEach(function(i){$(i).addEventListener("input",function(){
+    if(i==="routeSel")$("route").value=$("routeSel").value;
+    render();save();
+  })});
+  $("logoFile").addEventListener("change",function(e){
+    var f=e.target.files[0];if(!f)return;var r=new FileReader();
+    r.onload=function(){setLogo(r.result);save(r.result)};r.readAsDataURL(f);
+  });
+  $("resetBtn").addEventListener("click",function(){
+    ids.forEach(function(i){$(i).value=defaults[i]});
+    try{localStorage.removeItem(KEY)}catch(e){}
+    location.reload();
+  });
+  var t;function toast(){var el=$("toast");el.classList.add("show");clearTimeout(t);t=setTimeout(function(){el.classList.remove("show")},1400)}
+  document.querySelectorAll(".copy").forEach(function(b){b.addEventListener("click",function(){
+    var txt=$(b.dataset.c).textContent;if(txt==="\u2014")return;
+    if(navigator.clipboard){navigator.clipboard.writeText(txt).then(toast)}
+    else{var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast()}
+  })});
+  load();render();
+})();
 </script>
-
 </body>
 </html>
